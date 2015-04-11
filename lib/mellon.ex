@@ -1,45 +1,52 @@
 defmodule Mellon do
+  import Plug.Conn
   alias Plug.Conn
 
-  def init(params) do
-    params
-  end
+  @behaviour Plug
+  def init(params), do: params
 
   def call(conn, params) do
+    register_before_send(conn, &authenticate_request!(&1, params))
+  end
+
+  defp authenticate_request!(conn, {callback, header_text}) do
     conn
-    |> parse_header
+    |> parse_header(header_text)
     |> decode_token
-    |> assert_token(params)
+    |> assert_token(callback)
     |> handle_validation
   end
 
-  defp handle_validation({:ok, conn} ) do
+  defmodule InvalidTokenError do
+    message = "Authentication failed"
+
+    defexception message: message, plug_status: 403
+  end
+
+  defp parse_header(conn, header) do
+    {conn, Conn.get_req_header(conn, header)}
+  end
+
+  defp handle_validation({:ok, cargo, conn} ) do
     conn
-    |> Conn.assign(:credentials, {"simon", "pass"})
-    conn
+    |> Conn.assign(:credentials, cargo)
   end
 
   defp handle_validation({:error, conn}) do
     deny(conn)
   end
 
-  defp parse_header(conn) do
-    {conn, Conn.get_req_header(conn, "Authorization")}
-  end
 
   defp decode_token({conn, []}) do
     {conn, nil}
   end
 
   defp decode_token({conn, ["Token: " <> encoded_token | _]}) do
-    case Base.decode64(encoded_token) do
-      {:ok, token} -> {conn, token}
-      :error -> {conn, nil}
-    end
+    {conn, encoded_token}
   end
 
-  defp assert_token({conn, nil}, _params) do
-    {:error, conn}
+  defp assert_token({conn, nil}, params) do
+    assert_token({conn, ""}, params)
   end
 
   defp assert_token({conn, val}, {module, function, args}) do
@@ -47,8 +54,6 @@ defmodule Mellon do
   end
 
   defp deny(conn) do
-    conn
-    |> Conn.send_resp(401, "HTTP Authentication: Access Denied")
-    |> Conn.halt
+    raise InvalidTokenError
   end
 end

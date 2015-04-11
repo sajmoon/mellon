@@ -6,31 +6,21 @@ defmodule MellonTest do
     import Plug.Conn
     use Plug.Builder
 
-    plug Mellon, {TestPlug, :validate, []}
+    plug Mellon, {{TestPlug, :validate, []}, "authorization"}
 
     plug :index
 
     def validate({conn, val}) do
       case val do
-        "VALIDTOKEN" -> {:ok, conn}
+        "VALIDTOKEN" -> {:ok, {"123456"}, conn}
         _ -> {:error, conn}
       end
     end
 
     defp index(conn, _opts) do
       assign(conn, :logged_in, true)
-      |> send_resp(200, "Herro")
+      |> send_resp(200, "Secure area")
     end
-  end
-
-  defp assert_unauthorized(conn) do
-    assert conn.status == 401
-    refute conn.assigns[:logged_in]
-  end
-
-  defp assert_authorized(conn) do
-    assert conn.status == 200
-    assert conn.assigns[:logged_in]
   end
 
   defp call(plug, []) do
@@ -45,21 +35,32 @@ defmodule MellonTest do
   end
 
   defp auth_header(token) do
-    {"Authorization", "Token: " <> Base.encode64(token)}
+    {"authorization", "Token: " <> token}
   end
 
   test "test without credentials" do
-    conn = call(TestPlug, [])
-    assert_unauthorized conn
+    assert_raise Mellon.InvalidTokenError, fn ->
+      call(TestPlug, [])
+    end
   end
 
   test "test with false credentials" do
-    conn = call(TestPlug, [auth_header("RANDOMTOKEN")])
-    assert_unauthorized conn
+    assert_raise Mellon.InvalidTokenError, fn ->
+      call(TestPlug, [auth_header("RANDOMTOKEN")])
+    end
   end
 
   test "test with correct credentials" do
     conn = call(TestPlug, [auth_header("VALIDTOKEN")])
-    assert_authorized  conn
+
+    refute conn.halted
+    assert conn.status == 200
+    assert conn.resp_body == "Secure area"
+  end
+
+  test "valid token, sets credentials" do
+    conn = call(TestPlug, [auth_header("VALIDTOKEN")])
+
+    assert conn.assigns[:credentials] == {"123456"}
   end
 end
