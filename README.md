@@ -1,6 +1,8 @@
 Mellon
 ======
 
+[![Build Status](https://travis-ci.org/sajmoon/mellon.svg?branch=master)](https://travis-ci.org/sajmoon/mellon)
+
 An authentication module for Plug applications.
 
 ## Intallation
