@@ -35,3 +35,8 @@ defmodule MyApp do
 end
 ```
 
+To authenticated for this example using curl you might do the following:
+
+```bash
+curl --header "Authorization: Token: ValidToken" localhost:4000/hello
+```
