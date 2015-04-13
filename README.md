@@ -12,6 +12,8 @@ end
 
 ## How to use
 
+See /examples for a working example.
+
 ```elixir
 defmodule MyApp do
   import Plug.Conn
