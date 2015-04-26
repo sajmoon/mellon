@@ -42,3 +42,13 @@ To authenticated for this example using curl you might do the following:
 ```bash
 curl --header "X-AUTH: Token: ValidToken" localhost:4000/hello
 ```
+
+## Configuration
+You can configure some parameters while initializing Mellon.
+
+**Required**
+`validator`: The function that validates the token. Must return {:ok, userdata, conn} if valid and {:error, conn} if not.
+
+**Optional**
+`header`: The http header used for tokens. Will default to  'Authorization'.
+

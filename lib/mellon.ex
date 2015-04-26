@@ -2,16 +2,15 @@ defmodule Mellon do
   import Plug.Conn
   alias Plug.Conn
 
+  @default_parameters [header: "Authorization"]
+
   @behaviour Plug
   def init(params) do
-    Keyword.get(params, :header) || raise_missing_argument
     Keyword.get(params, :validator) || raise_missing_argument
-    params
-  end
 
-  def init do
-    raise_missing_argument
+    Keyword.merge(@default_parameters, params)
   end
+  def init, do: raise_missing_argument
 
   def call(conn, params) do
     conn
@@ -43,7 +42,7 @@ defmodule Mellon do
   defp assert_token({conn, nil}, params) do
     assert_token({conn, ""}, params)
   end
-  defp assert_token({conn, val}, {module, function, args}) do
+  defp assert_token({conn, val}, {module, function, _args}) do
     apply(module, function, [{conn, val}])
   end
 
