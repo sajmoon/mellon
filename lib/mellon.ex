@@ -3,14 +3,26 @@ defmodule Mellon do
   alias Plug.Conn
 
   @behaviour Plug
-  def init(params), do: params
+  def init(params) do
+    Keyword.get(params, :header) || raise_missing_argument
+    Keyword.get(params, :validator) || raise_missing_argument
+    params
+  end
+
+  def init do
+    raise_missing_argument
+  end
 
   def call(conn, params) do
     conn
     |> authenticate_request!(params)
   end
 
-  defp authenticate_request!(conn, {authentication_method, header_text}) do
+  defp raise_missing_argument do
+    raise ArgumentError, "Requires some argment. See doc"
+  end
+
+  defp authenticate_request!(conn, validator: authentication_method, header: header_text) do
     conn
     |> parse_header(header_text)
     |> decode_token

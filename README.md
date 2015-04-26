@@ -21,7 +21,7 @@ defmodule MyApp do
   import Plug.Conn
   use Plug.Builder
 
-  plug Mellon, {{MyApp, :validate, []}, "X-AUTH"}
+  plug Mellon, validator: {MyApp, :validate, []}, header: "X-AUTH"
 
   plug :index
 
