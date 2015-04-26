@@ -6,7 +6,7 @@ defmodule MellonTest do
     import Plug.Conn
     use Plug.Builder
 
-    plug Mellon, {{TestPlug, :validate, []}, "authorization"}
+    plug Mellon, validator: {TestPlug, :validate, []}, header: "authorization"
     plug :index
 
     def validate({conn, val}) do
@@ -34,6 +34,20 @@ defmodule MellonTest do
 
   defp auth_header(token) do
     {"authorization", "Token: " <> token}
+  end
+
+  test "missing argument" do
+    assert_raise ArgumentError, fn ->
+      Mellon.init()
+    end
+
+    assert_raise ArgumentError, fn ->
+      Mellon.init(validator: {TestPlug, :validate, []})
+    end
+
+    assert_raise ArgumentError, fn ->
+      Mellon.init(header: "authorization")
+    end
   end
 
   test "unauthorized without credentials" do
