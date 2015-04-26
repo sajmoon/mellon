@@ -31,7 +31,6 @@ defmodule Mellon do
   defp assert_token({conn, nil}, params) do
     assert_token({conn, ""}, params)
   end
-
   defp assert_token({conn, val}, {module, function, args}) do
     apply(module, function, [{conn, val}])
   end
@@ -40,7 +39,6 @@ defmodule Mellon do
     conn
     |> assign(:credentials, cargo)
   end
-
   defp handle_validation({:error, conn}) do
     deny(conn)
   end
