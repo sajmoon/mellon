@@ -1,6 +1,5 @@
 defmodule Simpleapp do
   use Plug.Router
-  use Plug.ErrorHandler
 
   plug Mellon, {{Simpleapp, :authenticate, []}, "X-AUTH"}
 

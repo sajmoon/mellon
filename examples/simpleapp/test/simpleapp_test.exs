@@ -4,9 +4,31 @@ defmodule SimpleappTest do
 
   test "/hello denied if no credentails" do
     conn = conn(:get, "/hello")
-    assert_raise Mellon.InvalidTokenError, fn ->
-      Simpleapp.call(conn, [])
-    end
+    |> Simpleapp.call([])
+
+    assert conn.state == :sent
+    assert conn.status == 401
+    assert conn.resp_body != "Secure area"
+  end
+
+  test "denied if invalid token" do
+    conn = conn(:get, "/hello")
+    |> put_req_header("X-AUTH", "Token: InvalidToken")
+    |> Simpleapp.call([])
+
+    assert conn.state == :sent
+    assert conn.status == 401
+    assert conn.resp_body != "Secure area"
+  end
+
+  test "denied if token form is wrong" do
+    conn = conn(:get, "/hello")
+    |> put_req_header("X-AUTH", "")
+    |> Simpleapp.call([])
+
+    assert conn.state == :sent
+    assert conn.status == 401
+    assert conn.resp_body != "Secure area"
   end
 
   test "/hello ok if correct credentials" do
@@ -16,5 +38,6 @@ defmodule SimpleappTest do
 
     assert conn.state == :sent
     assert conn.status == 200
+    assert conn.resp_body == "Secure area"
   end
 end

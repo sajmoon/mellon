@@ -6,11 +6,8 @@ defmodule Mellon do
   def init(params), do: params
 
   def call(conn, params) do
-    register_before_send(conn, &authenticate_request!(&1, params))
-  end
-
-  defmodule InvalidTokenError do
-    defexception message: "Unauthorized", plug_status: 403
+    conn
+    |> authenticate_request!(params)
   end
 
   defp authenticate_request!(conn, {authentication_method, header_text}) do
@@ -25,13 +22,11 @@ defmodule Mellon do
     {conn, Conn.get_req_header(conn, header)}
   end
 
-  defp decode_token({conn, []}) do
-    {conn, nil}
-  end
-
+  defp decode_token({conn, []}), do: {conn, nil}
   defp decode_token({conn, ["Token: " <> encoded_token | _]}) do
     {conn, encoded_token}
   end
+  defp decode_token({conn, [_token]}), do: {conn, nil}
 
   defp assert_token({conn, nil}, params) do
     assert_token({conn, ""}, params)
@@ -43,7 +38,7 @@ defmodule Mellon do
 
   defp handle_validation({:ok, cargo, conn}) do
     conn
-    |> Conn.assign(:credentials, cargo)
+    |> assign(:credentials, cargo)
   end
 
   defp handle_validation({:error, conn}) do
@@ -51,6 +46,8 @@ defmodule Mellon do
   end
 
   defp deny(conn) do
-    raise InvalidTokenError
+    conn
+    |> send_resp(401, "Unauthorized")
+    |> halt
   end
 end

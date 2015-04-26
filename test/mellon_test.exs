@@ -7,7 +7,6 @@ defmodule MellonTest do
     use Plug.Builder
 
     plug Mellon, {{TestPlug, :validate, []}, "authorization"}
-
     plug :index
 
     def validate({conn, val}) do
@@ -18,8 +17,7 @@ defmodule MellonTest do
     end
 
     defp index(conn, _opts) do
-      assign(conn, :logged_in, true)
-      |> send_resp(200, "Secure area")
+      send_resp(conn, 200, "Secure area")
     end
   end
 
@@ -38,19 +36,22 @@ defmodule MellonTest do
     {"authorization", "Token: " <> token}
   end
 
-  test "test without credentials" do
-    assert_raise Mellon.InvalidTokenError, fn ->
-      call(TestPlug, [])
-    end
+  @tag timeout: 30
+  test "unauthorized without credentials" do
+    conn = call(TestPlug, [])
+
+    assert conn.status == 401
+    assert conn.resp_body == "Unauthorized"
   end
 
-  test "test with false credentials" do
-    assert_raise Mellon.InvalidTokenError, fn ->
-      call(TestPlug, [auth_header("RANDOMTOKEN")])
-    end
+  @tag timeout: 30
+  test "unauthorized with wrong credentials" do
+    conn = call(TestPlug, [auth_header("RANDOMTOKEN")])
+    assert conn.status == 401
   end
 
-  test "test with correct credentials" do
+  @tag timeout: 30
+  test "authorized with correct credentials" do
     conn = call(TestPlug, [auth_header("VALIDTOKEN")])
 
     refute conn.halted
@@ -58,9 +59,28 @@ defmodule MellonTest do
     assert conn.resp_body == "Secure area"
   end
 
+  test "unauthorized for wrong header" do
+    conn = call(TestPlug, [{"WRONGHEADER", "Token: VALIDTOKEN"}])
+
+    assert conn.state == :sent
+    assert conn.status == 401
+    assert conn.resp_body != "Secure area"
+  end
+
+  test "unauthorized with wrong token format" do
+    conn = call(TestPlug, [{"authorization", "Bearer VALIDTOKEN"}])
+
+    assert conn.state == :sent
+    assert conn.status == 401
+    assert conn.resp_body != "Secure area"
+  end
+
+  @tag timeout: 30
   test "valid token, sets credentials" do
     conn = call(TestPlug, [auth_header("VALIDTOKEN")])
 
     assert conn.assigns[:credentials] == {"123456"}
+    assert conn.resp_body == "Secure area"
+    assert conn.status == 200
   end
 end
