@@ -36,7 +36,6 @@ defmodule MellonTest do
     {"authorization", "Token: " <> token}
   end
 
-  @tag timeout: 30
   test "unauthorized without credentials" do
     conn = call(TestPlug, [])
 
@@ -44,13 +43,11 @@ defmodule MellonTest do
     assert conn.resp_body == "Unauthorized"
   end
 
-  @tag timeout: 30
   test "unauthorized with wrong credentials" do
     conn = call(TestPlug, [auth_header("RANDOMTOKEN")])
     assert conn.status == 401
   end
 
-  @tag timeout: 30
   test "authorized with correct credentials" do
     conn = call(TestPlug, [auth_header("VALIDTOKEN")])
 
@@ -75,7 +72,6 @@ defmodule MellonTest do
     assert conn.resp_body != "Secure area"
   end
 
-  @tag timeout: 30
   test "valid token, sets credentials" do
     conn = call(TestPlug, [auth_header("VALIDTOKEN")])
 
