@@ -35,6 +35,10 @@ defmodule Mellon do
 
     Error raised when requiered attributs are missing.
 
+    ## Usage
+
+    plug Mellon, validator: {MyApp, :auth, []}, header: "x-api"
+
     ## Example
 
       iex> Mellon.init validator: {TestApp, :authenticate, []}
