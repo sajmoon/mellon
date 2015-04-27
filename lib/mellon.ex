@@ -34,21 +34,22 @@ defmodule Mellon do
     * `header` - http header. string.
 
     Error raised when requiered attributs are missing.
+
   """
   def init(params) do
-    Keyword.get(params, :validator) || raise_missing_argument
+    ensure_required_param(params, :validator)
 
     Keyword.merge(@default_parameters, params)
   end
-  def init, do: raise_missing_argument
+  def init, do: raise(ArgumentError, "Requires some argment. See doc")
 
   def call(conn, params) do
     conn
     |> authenticate_request!(params)
   end
 
-  defp raise_missing_argument do
-    raise ArgumentError, "Requires some argment. See doc"
+  defp ensure_required_param(params, param) do
+    Keyword.get(params, param) || raise ArgumentError, "Requires some argment. See doc"
   end
 
   defp authenticate_request!(conn, validator: authentication_method, header: header_text) do
