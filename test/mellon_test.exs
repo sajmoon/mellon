@@ -1,5 +1,7 @@
 defmodule MellonTest do
   use ExUnit.Case, async: true
+  doctest Mellon
+
   use Plug.Test
 
   defmodule TestPlug do

@@ -35,13 +35,24 @@ defmodule Mellon do
 
     Error raised when requiered attributs are missing.
 
+    ## Example
+
+      iex> Mellon.init validator: {TestApp, :authenticate, []}
+      [validator: {TestApp, :authenticate, []}, header: "Authorization"]
+
+      iex> Mellon.init
+      ** (ArgumentError) Missing some required arguments. See doc
+
+      iex> Mellon.init header: "x-api"
+      ** (ArgumentError) Missing some required arguments. See doc
+
   """
   def init(params) do
     ensure_required_param(params, :validator)
 
     Keyword.merge(@default_parameters, params)
   end
-  def init, do: raise(ArgumentError, "Requires some argment. See doc")
+  def init, do: raise(ArgumentError, "Missing some required arguments. See doc")
 
   def call(conn, params) do
     conn
@@ -49,7 +60,7 @@ defmodule Mellon do
   end
 
   defp ensure_required_param(params, param) do
-    Keyword.get(params, param) || raise ArgumentError, "Requires some argment. See doc"
+    Keyword.get(params, param) || raise ArgumentError, "Missing some required arguments. See doc"
   end
 
   defp authenticate_request!(conn, validator: authentication_method, header: header_text) do
