@@ -1,10 +1,40 @@
 defmodule Mellon do
+  @moduledoc """
+  `Mellon` is a simple authentication plug.
+
+  It can be used to any plug based service via headers.
+  It is configurable, and easily exentable. Use it to parse requests,
+  but it allows you to implement your own validation and authentication.
+
+  ## Usage
+
+
+  ## Parameters
+
+  ### Mandatory
+  * `validator` - defines the method to validate the token. Defined in the form {Module, :method, args}.
+     example {SimpleApp, :authorization, []}
+
+  ### Optional
+  * `header` - the header name to use for the token. defaults to `"Authorization"`
+
+  """
+
   import Plug.Conn
   alias Plug.Conn
 
   @default_parameters [header: "Authorization"]
-
   @behaviour Plug
+
+  @doc """
+    Configure `Mellon`.
+
+    Takes parameters in the form of [header: "value"]
+    * `validator` - validaton function. {Module, :method, args}
+    * `header` - http header. string.
+
+    Error raised when requiered attributs are missing.
+  """
   def init(params) do
     Keyword.get(params, :validator) || raise_missing_argument
 
