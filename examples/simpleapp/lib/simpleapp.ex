@@ -9,7 +9,7 @@ defmodule Simpleapp do
   def authenticate({conn, token}) do
     case token do
       "ValidToken" -> {:ok, {}, conn}
-      _ -> {:error, conn}
+      _ -> {:error, [], conn}
     end
   end
 

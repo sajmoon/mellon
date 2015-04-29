@@ -14,13 +14,25 @@ defmodule MellonTest do
     def validate({conn, val}) do
       case val do
         "VALIDTOKEN" -> {:ok, {"123456"}, conn}
-        _ -> {:error, conn}
+        _ -> {:error, [], conn}
       end
     end
 
     defp index(conn, _opts) do
       send_resp(conn, 200, "Secure area")
     end
+  end
+
+  defmodule CustomErrorResponsePlug do
+    import Plug.Conn
+    use Plug.Builder
+
+    plug Mellon, validator: {CustomErrorResponsePlug, :validate, []}
+
+    def validate({conn, val}) do
+      {:error, [status: 403, message: "Nope not here"], conn}
+    end
+
   end
 
   defp call(plug, []) do
@@ -102,5 +114,13 @@ defmodule MellonTest do
     assert conn.assigns[:credentials] == {"123456"}
     assert conn.resp_body == "Secure area"
     assert conn.status == 200
+  end
+
+  test "test custom error status and message" do
+    conn = call(CustomErrorResponsePlug, [auth_header("VALIDTOKEN")])
+
+    assert conn.state == :sent
+    assert conn.status == 403
+    assert conn.resp_body == "Nope not here"
   end
 end

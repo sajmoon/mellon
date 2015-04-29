@@ -96,13 +96,16 @@ defmodule Mellon do
     conn
     |> assign(:credentials, cargo)
   end
-  defp handle_validation({:error, conn}) do
-    deny(conn)
+  defp handle_validation({:error, option, conn}) do
+    default = [status: 401, message: "Unauthorized"]
+    option = Keyword.merge(default, option)
+
+    deny(conn, option)
   end
 
-  defp deny(conn) do
+  defp deny(conn, [status: status, message: msg]) do
     conn
-    |> send_resp(401, "Unauthorized")
+    |> send_resp(status, msg)
     |> halt
   end
 end
