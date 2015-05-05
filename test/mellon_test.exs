@@ -29,7 +29,7 @@ defmodule MellonTest do
 
     plug Mellon, validator: {CustomErrorResponsePlug, :validate, []}
 
-    def validate({conn, val}) do
+    def validate({conn, _val}) do
       {:error, [status: 403, message: "Nope not here"], conn}
     end
 
