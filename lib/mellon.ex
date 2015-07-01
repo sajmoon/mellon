@@ -105,7 +105,7 @@ defmodule Mellon do
 
   defp deny(conn, [status: status, message: msg]) do
     conn
-    |> send_resp(status, msg)
+    |> send_resp(status, Poison.encode!(%{error: msg}))
     |> halt
   end
 end

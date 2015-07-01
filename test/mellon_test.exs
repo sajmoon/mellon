@@ -76,7 +76,9 @@ defmodule MellonTest do
     conn = call(TestPlug, [])
 
     assert conn.status == 401
-    assert conn.resp_body == "Unauthorized"
+    %{"error" => message} = conn.resp_body
+    |> Poison.Parser.parse!
+    assert message == "Unauthorized"
   end
 
   test "unauthorized with wrong credentials" do
@@ -121,6 +123,8 @@ defmodule MellonTest do
 
     assert conn.state == :sent
     assert conn.status == 403
-    assert conn.resp_body == "Nope not here"
+    %{"error" => message} = conn.resp_body
+    |> Poison.Parser.parse!
+    assert message == "Nope not here"
   end
 end
