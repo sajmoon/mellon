@@ -105,6 +105,7 @@ defmodule Mellon do
 
   defp deny(conn, [status: status, message: msg]) do
     conn
+    |> put_resp_content_type("application/json")
     |> send_resp(status, Poison.encode!(%{error: msg}))
     |> halt
   end
