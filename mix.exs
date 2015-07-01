@@ -5,7 +5,14 @@ defmodule Mellon.Mixfile do
     [app: :mellon,
      version: "0.0.1",
      elixir: "~> 1.0",
-     deps: deps]
+     name: "Mellon",
+     deps: deps,
+     package: package
+    ]
+  end
+
+  defp package do
+    %{links: %{"GitHub" => "https://github.com/sajmoon/mellon"}}
   end
 
   # Configuration for the OTP application
