@@ -3,7 +3,7 @@ defmodule Mellon.Mixfile do
 
   def project do
     [app: :mellon,
-     version: "0.0.1",
+     version: "0.0.3",
      elixir: "~> 1.0",
      name: "Mellon",
      deps: deps,
@@ -34,7 +34,7 @@ defmodule Mellon.Mixfile do
   defp deps do
     [
       {:plug, "> 0.8.0"},
-      {:poison, "~> 1.3.1"}
+      {:poison, ">= 1.3.1"}
     ]
   end
 end
