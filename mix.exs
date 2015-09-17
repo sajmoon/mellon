@@ -7,12 +7,23 @@ defmodule Mellon.Mixfile do
      elixir: "~> 1.0",
      name: "Mellon",
      deps: deps,
-     package: package
+     package: package,
+     description: description
     ]
   end
 
   defp package do
-    %{links: %{"GitHub" => "https://github.com/sajmoon/mellon"}}
+    [
+      links: %{"GitHub" => "https://github.com/sajmoon/mellon"},
+      contributors: ["Simon Ström"]
+    ]
+  end
+
+  defp description do
+    """
+    Mellon is a Plug used in authentication of APIs.
+    It's flexible, you can define your own validator etc.
+    """
   end
 
   # Configuration for the OTP application
