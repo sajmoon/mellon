@@ -8,7 +8,6 @@ defmodule Mellon do
 
   ## Usage
 
-
   ## Parameters
 
   ### Mandatory
@@ -23,7 +22,7 @@ defmodule Mellon do
   import Plug.Conn
   alias Plug.Conn
 
-  @default_parameters [header: "Authorization"]
+  @default_parameters [header: "Authorization", block: true]
   @behaviour Plug
 
   @doc """
@@ -42,7 +41,7 @@ defmodule Mellon do
     ## Example
 
       iex> Mellon.init validator: {TestApp, :authenticate, []}
-      [validator: {TestApp, :authenticate, []}, header: "Authorization"]
+      [validator: {TestApp, :authenticate, []}, header: "Authorization", block: true]
 
       iex> Mellon.init
       ** (ArgumentError) Missing some required arguments. See doc
@@ -67,12 +66,12 @@ defmodule Mellon do
     Keyword.get(params, param) || raise ArgumentError, "Missing some required arguments. See doc"
   end
 
-  defp authenticate_request!(conn, validator: authentication_method, header: header_text) do
+  defp authenticate_request!(conn, validator: authentication_method, header: header_text, block: block) do
     conn
     |> parse_header(header_text)
     |> decode_token
     |> assert_token(authentication_method)
-    |> handle_validation
+    |> handle_validation(block)
   end
 
   defp parse_header(conn, header) do
@@ -92,15 +91,21 @@ defmodule Mellon do
     apply(module, function, [{conn, val}])
   end
 
-  defp handle_validation({:ok, cargo, conn}) do
+  defp handle_validation({:ok, cargo, conn}, _block) do
     conn
     |> assign(:credentials, cargo)
   end
-  defp handle_validation({:error, option, conn}) do
+  defp handle_validation({:error, option, conn}, true) do
     default = [status: 401, message: "Unauthorized"]
     option = Keyword.merge(default, option)
 
     deny(conn, option)
+  end
+  defp handle_validation({:error, option, conn}, false) do
+    # Do nothing. This allows non-blocking authentication.
+    # If the user is authenticated, we assigns credentials
+    # otherwise just let it pass through
+    conn
   end
 
   defp deny(conn, [status: status, message: msg]) do

@@ -54,6 +54,8 @@ You can configure some parameters while initializing Mellon.
 
 `header`: The http header used for tokens. Will default to  'Authorization'.
 
+`block`: Boolean representing if we should return a 401 and stop the chain, if the user is unauthenticated. set block: false, and you can handle displaying a message, oredirecting from the controller.
+
 
 ## Return object from validator
 The validator can return some options.
