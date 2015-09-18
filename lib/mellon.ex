@@ -101,7 +101,7 @@ defmodule Mellon do
 
     deny(conn, option)
   end
-  defp handle_validation({:error, option, conn}, false) do
+  defp handle_validation({:error, _option, conn}, false) do
     # Do nothing. This allows non-blocking authentication.
     # If the user is authenticated, we assigns credentials
     # otherwise just let it pass through
