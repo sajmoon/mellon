@@ -80,13 +80,13 @@ defmodule MellonTest do
   test "initalizer uses default values" do
     params = Mellon.init(validator: {TestPlug, :validate, []})
 
-    assert Keyword.get(params, :header) == "Authorization"
+    assert params[:header] == "Authorization"
   end
 
   test "initalizer does not overrider params with defualts" do
     params = Mellon.init(validator: {TestPlug, :validate, []}, header: "XAUTH")
 
-    assert Keyword.get(params, :header) == "XAUTH"
+    assert params[:header] == "XAUTH"
   end
 
   test "unauthorized without credentials" do

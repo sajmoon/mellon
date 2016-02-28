@@ -22,7 +22,7 @@ defmodule Mellon do
   import Plug.Conn
   alias Plug.Conn
 
-  @default_parameters [header: "Authorization", block: true]
+  @default_parameters %{header: "Authorization", block: true}
   @behaviour Plug
 
   @doc """
@@ -41,7 +41,7 @@ defmodule Mellon do
     ## Example
 
       iex> Mellon.init validator: {TestApp, :authenticate, []}
-      [validator: {TestApp, :authenticate, []}, header: "Authorization", block: true]
+      %{validator: {TestApp, :authenticate, []}, header: "Authorization", block: true}
 
       iex> Mellon.init
       ** (ArgumentError) Missing some required arguments. See doc
@@ -53,7 +53,8 @@ defmodule Mellon do
   def init(params) do
     ensure_required_param(params, :validator)
 
-    Keyword.merge(@default_parameters, params)
+    params = Enum.into(params, %{})
+    Map.merge(@default_parameters, params)
   end
   def init, do: raise(ArgumentError, "Missing some required arguments. See doc")
 
@@ -66,7 +67,12 @@ defmodule Mellon do
     Keyword.get(params, param) || raise ArgumentError, "Missing some required arguments. See doc"
   end
 
-  defp authenticate_request!(conn, validator: authentication_method, header: header_text, block: block) do
+  defp authenticate_request!(conn, params) when is_list(params) do
+    params = Enum.into(params, %{})
+
+    authenticate_request!(conn, params)
+  end
+  defp authenticate_request!(conn,  %{validator: authentication_method, header: header_text, block: block}) do
     conn
     |> parse_header(header_text)
     |> decode_token
