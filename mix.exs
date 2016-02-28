@@ -15,7 +15,7 @@ defmodule Mellon.Mixfile do
   defp package do
     [
       links: %{"GitHub" => "https://github.com/sajmoon/mellon"},
-      contributors: ["Simon Ström"]
+      maintainers: ["Simon Ström"]
     ]
   end
 
