@@ -8,7 +8,7 @@ An authentication module for Plug applications.
 ## Intallation
 ```elixir
 defp deps do
-  [{:mellon, "~> 0.0.1"}]
+  [{:mellon, "~> 0.1.1"}]
 end
 ```
 
