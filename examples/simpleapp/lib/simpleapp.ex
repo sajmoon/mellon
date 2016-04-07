@@ -1,7 +1,7 @@
 defmodule Simpleapp do
   use Plug.Router
 
-  plug Mellon, validator: {Simpleapp, :authenticate, []}, header: "X-AUTH"
+  plug Mellon, validator: {Simpleapp, :authenticate, []}, header: "x-auth"
 
   plug :match
   plug :dispatch

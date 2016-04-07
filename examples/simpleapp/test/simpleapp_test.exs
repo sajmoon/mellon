@@ -13,7 +13,7 @@ defmodule SimpleappTest do
 
   test "denied if invalid token" do
     conn = conn(:get, "/hello")
-    |> put_req_header("X-AUTH", "Token: InvalidToken")
+    |> put_req_header("x-auth", "Token: InvalidToken")
     |> Simpleapp.call([])
 
     assert conn.state == :sent
@@ -23,7 +23,7 @@ defmodule SimpleappTest do
 
   test "denied if token form is wrong" do
     conn = conn(:get, "/hello")
-    |> put_req_header("X-AUTH", "")
+    |> put_req_header("x-auth", "")
     |> Simpleapp.call([])
 
     assert conn.state == :sent
@@ -33,7 +33,7 @@ defmodule SimpleappTest do
 
   test "/hello ok if correct credentials" do
     conn = conn(:get, "/hello")
-    |> put_req_header("X-AUTH", "Token: ValidToken")
+    |> put_req_header("x-auth", "Token: ValidToken")
     |> Simpleapp.call([])
 
     assert conn.state == :sent
